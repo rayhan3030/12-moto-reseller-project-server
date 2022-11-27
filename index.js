@@ -21,6 +21,8 @@ async function run() {
     try {
         const categoryCollection = client.db('motoResellar').collection('categories');
         const productsCollection = client.db('motoResellar').collection('allProducts');
+        const bookingsCollection = client.db('motoResellar').collection('bookings');
+
 
         app.get('/category', async (req, res) => {
             const query = {}
