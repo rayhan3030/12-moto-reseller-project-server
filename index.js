@@ -29,6 +29,16 @@ async function run() {
         })
 
 
+        app.get('/category/:id', async (req, res) => {
+            let query = {};
+            if (req.params.id)
+                query = {
+                    categoryId: req.params.id,
+                }
+            const cursor = await productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
     }
     finally {
