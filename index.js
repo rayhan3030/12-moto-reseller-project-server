@@ -23,7 +23,7 @@ async function run() {
         const productsCollection = client.db('motoResellar').collection('allProducts');
         const bookingsCollection = client.db('motoResellar').collection('bookings');
 
-
+        // this api is for loading 3 types of bike in the home page
         app.get('/category', async (req, res) => {
             const query = {}
             const options = await categoryCollection.find(query).toArray()
@@ -40,6 +40,14 @@ async function run() {
             const cursor = await productsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result)
+        })
+
+        // this api for recive data from booking modal to database
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body
+            console.log(booking);
+            const result = await bookingsCollection.insertOne(booking);
+            res.send(result);
         })
 
     }
