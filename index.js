@@ -28,7 +28,7 @@ async function run() {
             res.send(options)
         })
 
-
+        // this api for loading category wise product in category:id route
         app.get('/category/:id', async (req, res) => {
             let query = {};
             if (req.params.id)
