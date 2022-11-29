@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
@@ -98,6 +98,31 @@ async function run() {
             res.status(403).send({ acessToken: '' })
         })
 
+        // load all user data to AllUsers component
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        })
+        //====================
+        // app.get('/users', async (req, res) => {
+        //     const name = req.query.name
+        //     const query = {}
+        //     const options = await usersCollection.filter(user => user.name).toArray(query)
+        //     res.send(options);
+        // })
+        // app.get('/users', async (req, res) => {
+        //     let query = {};
+        //     if (req.query.name) {
+        //         query = {
+        //             email: req.query.name
+        //         }
+        //     }
+        //     const cursor = usersCollection.find(query);
+        //     const users = await cursor.toArray();
+        //     res.send(users);
+        // });
+        //====================
 
         //send logged in users data to mongodb {from signup component} role can be set in future
         app.post('/users', async (req, res) => {
@@ -106,6 +131,58 @@ async function run() {
             res.send(result)
 
         })
+
+        //make admin apatoto AllUser component
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
+            // const decodedEmail = req.decoded.email;
+            // const query = { email: decodedEmail }
+            // const user = await usersCollection.findOne(query);
+            // if (user?.role !== 'admin') {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options)
+            res.send(result)
+        })
+        //make seller api
+        app.put('/users/seller/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {
+                    role: 'seller'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options)
+            res.send(result)
+        })
+
+        //admin check
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await usersCollection.findOne(query)
+            res.send({ isAdmin: user?.role === 'admin' })
+        })
+
+        //seller check
+        app.get('/users/seller/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await usersCollection.findOne(query)
+            res.send({ isSeller: user?.role === 'seller' })
+        })
+
+
 
     }
     finally {
